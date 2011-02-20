@@ -32,6 +32,8 @@ void printUsage () {
 	printLine ("Usage:");
 	printLine ("metamorph [-options]");
 	printLine ("\t-i\tInput file (must be readable)");
+	printLine ("\t-b\tBlock size (default 128 bits)");
+	printLine ("\t-v\tIncrease verbosity");
 	return;
 }
 
