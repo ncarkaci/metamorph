@@ -16,10 +16,16 @@
 #include "interface.h"
 #include "header.h"
 #include "main.h"
+#include "pe.h"
+#include "blocks.h"
 
 std::string inputFile = "";
 int blockSize = 128;
 int verbosity = 0;
+
+int getBlockSize () {
+	return blockSize;
+}
 
 std::string itoa (int n) {
         char * s = new char[17];
@@ -57,6 +63,7 @@ int main (int argc, char ** argv) {
 	
 	if (inputFile == "") {
 		printError ("An input file must be specified!");
+		printUsage ();
 		return -1;
 	}
 	printLine ("Reading file...");
@@ -84,7 +91,8 @@ int main (int argc, char ** argv) {
 	
 	if (memblock [0] == 'M' && memblock [1] == 'Z') {
 		printDebug ("DIS", "Found Portable Executable (PE) file");	
-		fileType = PE;	
+		fileType = PE;
+		classPe pe (inputFile);
 	}
 	
 	else if (memblock [1] == 'E' && memblock [2] == 'L' && memblock [3] == 'F') {
@@ -94,12 +102,8 @@ int main (int argc, char ** argv) {
 	
 	else
 	{
-		/*printError ("File format not found!");
-		printDebug ("MEM", "Freeing memory...");
-		delete [] memblock;
-		return -1;*/
-		printDebug ("DIS", "Found BIN file");
-		fileType = ELF;
+		printDebug ("DIS", "Found BIN (raw) file");
+		fileType = BIN;
 	}
 	
 	printDebug ("MEM", "Freeing memory...");
@@ -108,13 +112,21 @@ int main (int argc, char ** argv) {
 	std::string exec = "ndisasm " + inputFile + " > ~" + inputFile + ".asm";
 	system (exec.c_str ());
 	
-	// TODO: Loop through file line by line, load into structure
+	// Loop through file line by line, load into structure
 	printLine ("Reading file...");
-	//exec = "rm ~" + inputFile + ".asm";
-	sleep (1);
+	std::string line;
+	std::ifstream asmfile (("~" + inputFile + ".asm").c_str (), std::ios::in);
+	std::vector <std::string> lines;
+	while (asmfile.good ()) {
+		getline (asmfile,line);
+		lines.push_back (line);
+	}
+	asmfile.close ();
+	printDebug ("DIS", "Read " + itoa (lines.size ()) + " lines");
 	
 	// TODO: Break down file into blocks
 	printLine ("Creating " + itoa (blockSize) + "-bit blocks...");
+	classBlockContainer blockContainer (lines);
 	sleep (1);
 	
 	// TODO: Add decryption engine

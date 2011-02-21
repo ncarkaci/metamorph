@@ -27,4 +27,6 @@ struct _IMAGE_DOS_HEADER {              // DOS .EXE header
   
 enum file_t {NONE, BIN, PE, ELF};
 
+int getBlockSize ();
+
 #endif
