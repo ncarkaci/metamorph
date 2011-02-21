@@ -109,13 +109,13 @@ int main (int argc, char ** argv) {
 	printDebug ("MEM", "Freeing memory...");
 	delete [] memblock;
 	printLine ("Disassembling...");
-	std::string exec = "ndisasm " + inputFile + " > ~" + inputFile + ".asm";
+	std::string exec = "ndisasm " + inputFile + " > " + inputFile + ".asm";
 	system (exec.c_str ());
 	
 	// Loop through file line by line, load into structure
 	printLine ("Reading file...");
 	std::string line;
-	std::ifstream asmfile (("~" + inputFile + ".asm").c_str (), std::ios::in);
+	std::ifstream asmfile ((inputFile + ".asm").c_str (), std::ios::in);
 	std::vector <std::string> lines;
 	while (asmfile.good ()) {
 		getline (asmfile,line);
@@ -143,8 +143,9 @@ int main (int argc, char ** argv) {
 	
 	// TODO: Reassemble
 	printLine ("Reassembling...");
-	if (fileType == PE) {exec = "nasm -o crypted-" + inputFile + " -f win32 ~" + inputFile + ".asm";}
-	else if (fileType == ELF) {exec = "nasm -o crypted-" + inputFile + " -f elf ~" + inputFile + ".asm";}
+	if (fileType == PE) {exec = "nasm -o " + inputFile + "-crypted -f win32 " + inputFile + ".asm";}
+	else if (fileType == ELF) {exec = "nasm -o " + inputFile + "-crypted -f elf " + inputFile + ".asm";}
+	else if (fileType == BIN) {exec = "nasm -o " + inputFile + "-crypted -f bin " + inputFile + ".asm";}
 	system (exec.c_str ());
 	
 	printLine ("Done!");
