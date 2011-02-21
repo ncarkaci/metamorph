@@ -18,19 +18,19 @@
 
 classPe::classPe (std::string _filename) {
 	filename = _filename;
-	printDebug ("PE ", "Reading file...");
+	printDebug (1, "PE ", "Reading file...");
 	std::ifstream ifile (filename.c_str (), std::ios::in | std::ios::binary | std::ios::ate);
 	std::ifstream::pos_type size;
 	size = ifile.tellg();
-	printDebug ("MEM", "Allocating " + itoa (size) + " bytes of memory...");
+	printDebug (2, "MEM", "Allocating " + itoa (size) + " bytes of memory...");
 	memblock = new char [size];
 	ifile.seekg (0, std::ios::beg);
 	ifile.read (memblock, size);
 	ifile.close ();
-	printDebug ("MEM", "File in memory");
+	printDebug (2, "MEM", "File in memory");
 }
 
 classPe::~classPe () {
-	printDebug ("MEM", "Freeing memory...");
+	printDebug (2, "MEM", "Freeing memory...");
 	delete [] memblock;
 }

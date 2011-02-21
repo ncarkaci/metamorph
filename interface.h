@@ -6,6 +6,6 @@ void printLine (std::string line);
 void printTitle ();
 void printUsage ();
 void printError (std::string error);
-void printDebug (std::string f, std::string debug);
+void printDebug (int level, std::string f, std::string debug);
 
 #endif

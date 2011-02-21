@@ -27,6 +27,10 @@ int getBlockSize () {
 	return blockSize;
 }
 
+int getVerbosity () {
+	return verbosity;
+}
+
 std::string itoa (int n) {
         char * s = new char[17];
         std::string u;
@@ -50,7 +54,7 @@ std::string itoa (int n) {
 int main (int argc, char ** argv) {
 	// Parse command-line options
 	int c;
-	while ((c = getopt (argc, argv, "i:b:v")) != -1) {
+	while ((c = getopt (argc, argv, "i:b:vh")) != -1) {
 		//if (c == 'T') {optThreads = atoi (optarg);}
 		if (c == 'i') {inputFile = optarg;}
 		if (c == 'b') {blockSize = atoi (optarg);}
@@ -80,12 +84,12 @@ int main (int argc, char ** argv) {
 	std::ifstream::pos_type size;
 	char * memblock;
 	size = file.tellg();
-	printDebug ("MEM", "Allocating " + itoa (size) + " bytes of memory...");
+	printDebug (2, "MEM", "Allocating " + itoa (size) + " bytes of memory...");
 	memblock = new char [size];
 	file.seekg (0, std::ios::beg);
 	file.read (memblock, size);
 	file.close ();
-	printDebug ("MEM", "File in memory");
+	printDebug (2, "MEM", "File in memory");
 	
 	printLine ("Processing file...");
 	
@@ -94,23 +98,23 @@ int main (int argc, char ** argv) {
 	file_t fileType = NONE;
 	
 	if (memblock [0] == 'M' && memblock [1] == 'Z') {
-		printDebug ("DIS", "Found Portable Executable (PE) file");	
+		printDebug (1, "DIS", "Found Portable Executable (PE) file");	
 		fileType = PE;
 		classPe pe (inputFile);
 	}
 	
 	else if (memblock [1] == 'E' && memblock [2] == 'L' && memblock [3] == 'F') {
-		printDebug ("DIS", "Found ELF file");
+		printDebug (1, "DIS", "Found ELF file");
 		fileType = ELF;
 	}
 	
 	else
 	{
-		printDebug ("DIS", "Found BIN (raw) file");
+		printDebug (1, "DIS", "Found BIN (raw) file");
 		fileType = BIN;
 	}
 	
-	printDebug ("MEM", "Freeing memory...");
+	printDebug (2, "MEM", "Freeing memory...");
 	delete [] memblock;
 	printLine ("Disassembling...");
 	std::string exec = "ndisasm " + inputFile + " > " + inputFile + ".asm";
@@ -126,13 +130,12 @@ int main (int argc, char ** argv) {
 		lines.push_back (line);
 	}
 	asmfile.close ();
-	printDebug ("DIS", "Read " + itoa (lines.size ()) + " lines");
+	printDebug (1, "DIS", "Read " + itoa (lines.size ()) + " lines");
 	
 	// TODO: Break down file into blocks
 	printLine ("Creating " + itoa (blockSize) + "-bit blocks...");
 	classBlockContainer blockContainer (lines);
-	printDebug ("BLK", "Created " + itoa (blockContainer.getBlocks ()) + " blocks! (" + itoa (blockContainer.getBlocks () * blockSize) + " bytes)");
-	printDebug ("BLK", "\n" + blockContainer.getString ());
+	printDebug (1, "BLK", "Created " + itoa (blockContainer.getBlocks ()) + " blocks! (" + itoa (blockContainer.getBlocks () * blockSize) + " bytes)");
 	sleep (1);
 	
 	// TODO: Add decryption engine
