@@ -10,7 +10,12 @@
 #include <string>
 #include <iostream>
 
+#ifdef WINDOWS
+	#include <windows.h>
+#endif
+
 #include "interface.h"
+#include "main.h"
 
 void print (std::string text) {
 	std::cout << "[ ] " << text;
@@ -18,12 +23,12 @@ void print (std::string text) {
 }
 
 void printLine (std::string string) {
-	std::cout << "[ ] " << string << std::endl;
+	print (string + "\n");
 	return;
 }
 
 void printTitle () {
-	printLine ("metamorph");
+	printLine ("Metamorph");
 	printLine ("By Quetuo");
 	return;
 }
@@ -38,11 +43,18 @@ void printUsage () {
 }
 
 void printError (std::string error) {
-	std::cout << "\033[22;31m *** " << error << " *** \033[0m" << std::endl;
+	#ifdef LINUX
+		std::cout << "\033[22;31m *** " << error << " *** \033[0m" << std::endl;
+	#endif
+	#ifdef WINDOWS
+		std::cout << " *** " << error << " *** " << std::endl;
+	#endif
 	return;
 }
 
-void printDebug (std::string f, std::string debug) {
-	std::cout << "\033[22;32m   [" << f << "] " << debug << " \033[0m" << std::endl;
+void printDebug (int level, std::string f, std::string debug) {
+	if (getVerbosity () >= level) {
+		std::cout << "\033[22;32m   [" << f << "] " << debug << " \033[0m" << std::endl;
+	}
 	return;
 }

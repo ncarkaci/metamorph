@@ -11,6 +11,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <map>
 
 #include "interface.h"
 #include "header.h"
@@ -44,34 +45,44 @@ classBlockContainer::classBlockContainer (std::vector <std::string> _lines) {
 		std::string op = _lines [i].substr (28);
 		std::string _size = _lines [i].substr (10, 18);
 		size_t pos = _size.find (" ");
-		int size = pos / 2;
-		if (offset % blockSize == 0 && offset > 0) {
-			_blocks += 1;
-			printDebug ("BLK", "New block (" + itoa (_blocks) + ") / (" + itoa (_temp.size()) + ")");
-			classBlock blockTemp (_temp);
-			blocks.push_back (blockTemp);
-			_temp.clear ();
+		if (pos == std::string::npos) {
+			if (_lines [i] == "nop") {
+				offset += 1;
+			}
 		}
-		//printDebug ("BLK", itoa (offset) + ": At 0x" + address + ": " + op + "(" + itoa(size) + " bytes)");
-		if ((offset + size) - ((_blocks - 1) * blockSize) > blockSize) {
-			int _padding = blockSize - (offset % blockSize);
-			std::vector <std::string>::iterator it = _lines.begin();
-			std::advance (it, i);
-			_lines.insert (it, _padding, "NOP");
-			printDebug ("BLK", "Padding (" + itoa (_padding) + ")...");
-			offset += _padding;
+		else
+		{
+			int size = pos / 2;
+			if (offset % blockSize == 0 && offset > 0) {
+				_blocks += 1;
+				printDebug (3, "BLK", "New block (" + itoa (_blocks) + ") / (" + itoa (_temp.size()) + ")");
+				classBlock blockTemp (_temp);
+				blocks.push_back (blockTemp);
+				_temp.clear ();
+			}
+			printDebug (4, "BLK", itoa (offset) + ": At 0x" + address + ": " + op + "(" + itoa(size) + " bytes)");
+			if ((offset + size) - ((_blocks - 1) * blockSize) > blockSize) {
+				int _padding = blockSize - (offset % blockSize);
+				std::vector <std::string>::iterator it = _lines.begin();
+				std::advance (it, i);
+				_lines.insert (it, _padding, "nop");
+				printDebug (3, "BLK", "Padding (" + itoa (_padding) + ")...");
+				offset += _padding;
+			}
+			if ((offset + size) - ((_blocks - 1) * blockSize) <= blockSize) {
+				blockOffset [address] = _blocks;
+				blockOffsetOffset [address] = offset % blockSize;
+				printDebug (4, "ALN", "Realigned 0x" + address + " to " + itoa (offset) + " (" + itoa (offset % blockSize) + " in block " + itoa (_blocks) + ")");
+				offset += size;
+			}
+			_temp.push_back (_lines [i]);
+			blockString.push_back (_lines [i]);
+			printDebug (4, "ASM", _lines [i]);
 		}
-		if ((offset + size) - ((_blocks - 1) * blockSize) <= blockSize) {
-			offset += size;
-			
-		}
-		_temp.push_back (_lines [i]);
-		blockString.push_back (_lines [i]);
-		printDebug ("ASM", _lines [i]);
 	}
 	int _padding = blockSize - (offset % blockSize);
 	for (int i = 0; i < _padding; i ++) {_temp.push_back ("NOP"); blockString.push_back ("NOP");}
-	printDebug ("BLK", "Padding (" + itoa (_padding) + ")...");
+	printDebug (3, "BLK", "Padding (" + itoa (_padding) + ")...");
 	offset += _padding;
 	classBlock blockTemp (_temp);
 	blocks.push_back (blockTemp);

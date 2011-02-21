@@ -2,6 +2,7 @@
 #define __BLOCKS_H__
 
 #include <vector>
+#include <map>
 
 class classBlock {
 	char * memblock;
@@ -17,6 +18,8 @@ class classBlockContainer {
 	std::vector <classBlock> blocks;
 	std::vector <std::string> blockString;
 	int blockSize;
+	std::map <std::string, int> blockOffset;
+	std::map <std::string, int> blockOffsetOffset;
 	char * data;
 	public:
 		classBlockContainer (std::vector <std::string> _lines);
