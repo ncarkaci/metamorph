@@ -66,6 +66,10 @@ int main (int argc, char ** argv) {
 		printUsage ();
 		return -1;
 	}
+	if (blockSize < 8) {
+		printError ("The minimum block size is 8 (bytes)");
+		return -1;
+	}
 	printLine ("Reading file...");
 	std::ifstream file (inputFile.c_str (), std::ios::in | std::ios::binary | std::ios::ate);
 	if (!file.is_open()) {
@@ -127,6 +131,8 @@ int main (int argc, char ** argv) {
 	// TODO: Break down file into blocks
 	printLine ("Creating " + itoa (blockSize) + "-bit blocks...");
 	classBlockContainer blockContainer (lines);
+	printDebug ("BLK", "Created " + itoa (blockContainer.getBlocks ()) + " blocks! (" + itoa (blockContainer.getBlocks () * blockSize) + " bytes)");
+	printDebug ("BLK", "\n" + blockContainer.getString ());
 	sleep (1);
 	
 	// TODO: Add decryption engine
