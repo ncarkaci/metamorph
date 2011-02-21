@@ -23,3 +23,6 @@ pe.o: pe.c
 
 blocks.o: blocks.c
 	g++ -Wall -c -o blocks.o blocks.c
+
+install: metamorph
+	mv metamorph /usr/bin
