@@ -24,10 +24,13 @@ classBlock::~classBlock () {
 }
 
 classBlockContainer::classBlockContainer (std::vector <std::string> _lines) {
-	std::vector<std::string>::iterator it;
 	blockSize = getBlockSize ();
-	for (it = _lines.begin (); it < _lines.end (); it ++) {
-		printDebug ("BLK", *it);
+	int offset = 0;
+	for (int i = 0; i < (_lines.size () - 1); i ++) {
+		std::string address = _lines [i].substr (0, 8);
+		std::string op = _lines [i].substr (28);
+		printDebug ("BLK", "At 0x" + address + ": " + op);
+		
 	}
 }
 
