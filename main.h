@@ -29,5 +29,6 @@ enum file_t {NONE, BIN, PE, ELF};
 
 int getBlockSize ();
 int getVerbosity ();
+std::string getInputFile ();
 
 #endif

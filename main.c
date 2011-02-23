@@ -1,3 +1,5 @@
+// http://vx.netlux.org/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -31,6 +33,10 @@ int getVerbosity () {
 	return verbosity;
 }
 
+std::string getInputFile () {
+	return inputFile;
+}
+
 std::string itoa (int n) {
         char * s = new char[17];
         std::string u;
@@ -61,6 +67,7 @@ int main (int argc, char ** argv) {
 		if (c == 'v') {verbosity += 1;}
 		if (c == 'h') {
 			printTitle ();
+			printUsage ();
 			return 0;
 		}
 	}

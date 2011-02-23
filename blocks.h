@@ -18,8 +18,8 @@ class classBlockContainer {
 	std::vector <classBlock> blocks;
 	std::vector <std::string> blockString;
 	int blockSize;
-	std::map <std::string, int> blockOffset;
-	std::map <std::string, int> blockOffsetOffset;
+	std::map <int, int> blockOffset;
+	std::map <int, int> blockOffsetOffset;
 	char * data;
 	public:
 		classBlockContainer (std::vector <std::string> _lines);

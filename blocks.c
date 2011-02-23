@@ -18,6 +18,12 @@
 #include "main.h"
 #include "blocks.h"
 
+int htoi (std::string h) {
+	int i = 0;
+	sscanf (h.c_str (), "%x", &i);
+	return i;
+}
+
 classBlock::classBlock (std::vector <std::string> _lines) {
 	lines = _lines;
 }
@@ -34,6 +40,9 @@ std::string classBlock::getLine (int i) {
 }
 
 classBlockContainer::classBlockContainer (std::vector <std::string> _lines) {
+	std::string tempFile = getInputFile () + ".asm.temp";
+	std::ofstream oTempFile;
+	oTempFile.open (tempFile.c_str ());
 	blockSize = getBlockSize ();
 	int offset = 0;
 	//classBlock _block;
@@ -41,6 +50,9 @@ classBlockContainer::classBlockContainer (std::vector <std::string> _lines) {
 	int _blocks = 1;
 	std::vector <std::string> _temp;
 	for (int i = 0; i < (_lines.size () - 1); i ++) {
+		//printError ("LOOP");
+		//printError (_lines [i]);
+		if (_lines [i].length () < 10) {break; }
 		std::string address = _lines [i].substr (0, 8);
 		std::string op = _lines [i].substr (28);
 		std::string _size = _lines [i].substr (10, 18);
@@ -56,6 +68,7 @@ classBlockContainer::classBlockContainer (std::vector <std::string> _lines) {
 			if (offset % blockSize == 0 && offset > 0) {
 				_blocks += 1;
 				printDebug (3, "BLK", "New block (" + itoa (_blocks) + ") / (" + itoa (_temp.size()) + ")");
+				oTempFile << "block_" << itoa (_blocks) << ":\n";
 				classBlock blockTemp (_temp);
 				blocks.push_back (blockTemp);
 				_temp.clear ();
@@ -66,13 +79,17 @@ classBlockContainer::classBlockContainer (std::vector <std::string> _lines) {
 				std::vector <std::string>::iterator it = _lines.begin();
 				std::advance (it, i);
 				_lines.insert (it, _padding, "nop");
+				for (int iii = 0; iii < _padding; iii ++) {oTempFile << "nop\n";}
 				printDebug (3, "BLK", "Padding (" + itoa (_padding) + ")...");
+				printError ("NOP");
 				offset += _padding;
 			}
 			if ((offset + size) - ((_blocks - 1) * blockSize) <= blockSize) {
-				blockOffset [address] = _blocks;
-				blockOffsetOffset [address] = offset % blockSize;
-				printDebug (4, "ALN", "Realigned 0x" + address + " to " + itoa (offset) + " (" + itoa (offset % blockSize) + " in block " + itoa (_blocks) + ")");
+				blockOffset [htoi (address)] = _blocks;
+				blockOffsetOffset [htoi (address)] = offset % blockSize;
+				printDebug (4, "ALN", "Realigned 0x" + address + " (" + itoa (htoi (address)) + ") to " + itoa (offset) + " (" + itoa (offset % blockSize) + " in block " + itoa (_blocks) + ")");
+				printError (_lines [i]);
+				oTempFile << "align_" << itoa (htoi (address)) << ": " << _lines [i].substr (28) << "\n";
 				offset += size;
 			}
 			_temp.push_back (_lines [i]);
@@ -81,11 +98,12 @@ classBlockContainer::classBlockContainer (std::vector <std::string> _lines) {
 		}
 	}
 	int _padding = blockSize - (offset % blockSize);
-	for (int i = 0; i < _padding; i ++) {_temp.push_back ("NOP"); blockString.push_back ("NOP");}
+	for (int i = 0; i < _padding; i ++) {_temp.push_back ("NOP"); blockString.push_back ("NOP"); oTempFile << "nop\n";}
 	printDebug (3, "BLK", "Padding (" + itoa (_padding) + ")...");
 	offset += _padding;
 	classBlock blockTemp (_temp);
 	blocks.push_back (blockTemp);
+	oTempFile.close ();
 }
 
 classBlockContainer::~classBlockContainer () {

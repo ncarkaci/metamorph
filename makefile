@@ -23,12 +23,13 @@ ifdef LINUX
 endif
 ifdef WINDOWS
 	C++FLAGS	= -DWINDOWS
+	TARGET		= metamorph.exe
 endif
 
-all: metamorph
+all: nasm ndisasm metamorph
 
 metamorph: main.o interface.o pe.o blocks.o
-	g++ -o metamorph main.o interface.o pe.o blocks.o
+	g++ -o $(TARGET) main.o interface.o pe.o blocks.o
 
 main.o: main.c
 	$(C++) -Wall -c -o main.o main.c $(C++FLAGS)
@@ -47,3 +48,9 @@ install: metamorph
 
 clean: metamorph
 	rm *.o
+
+nasm:
+	apt-get install nasm
+
+ndisasm:
+	apt-get install ndisasm
